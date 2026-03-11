@@ -1,18 +1,74 @@
 @import "tailwindcss";
 
-:root {
-  --background: #0f0f0f;
-  --foreground: #ffffff;
+/* ── Dark theme (default) ── */
+:root,
+[data-theme="dark"] {
+  --bg-primary: #0f0f0f;
+  --bg-secondary: #1a1a1a;
+  --bg-elevated: #121212;
+  --bg-hover: #272727;
+  --bg-card: #1a1a1a;
+  --bg-input: #121212;
+  --bg-button: #222222;
+  --border-primary: #272727;
+  --border-input: #303030;
+  --text-primary: #ffffff;
+  --text-secondary: #aaaaaa;
+  --text-muted: #888888;
+  --text-dim: #666666;
+  --accent: #3ea6ff;
+  --accent-hover: #65b8ff;
+  --accent-bg: rgba(62, 166, 255, 0.2);
+  --purple: #5a2d82;
+  --skeleton: #333333;
+  --user-menu-bg: #282828;
+  --scrollbar-thumb: #393939;
+}
+
+/* ── Light theme ── */
+[data-theme="light"] {
+  --bg-primary: #f9f9f9;
+  --bg-secondary: #ffffff;
+  --bg-elevated: #ffffff;
+  --bg-hover: #e5e5e5;
+  --bg-card: #ffffff;
+  --bg-input: #ffffff;
+  --bg-button: #f0f0f0;
+  --border-primary: #e0e0e0;
+  --border-input: #cccccc;
+  --text-primary: #0f0f0f;
+  --text-secondary: #606060;
+  --text-muted: #909090;
+  --text-dim: #aaaaaa;
+  --accent: #065fd4;
+  --accent-hover: #0050b3;
+  --accent-bg: rgba(6, 95, 212, 0.12);
+  --purple: #7c3aed;
+  --skeleton: #e0e0e0;
+  --user-menu-bg: #ffffff;
+  --scrollbar-thumb: #c0c0c0;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--bg-primary);
+  --color-foreground: var(--text-primary);
+}
+
+/* ── Smooth transitions on theme change ── */
+*,
+*::before,
+*::after {
+  transition: background-color 0.4s ease, border-color 0.4s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Exclude elements that need instant transitions */
+iframe, video, img, canvas, .no-theme-transition {
+  transition: none !important;
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #393939 transparent;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 
 *::-webkit-scrollbar {
@@ -20,7 +76,7 @@
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: #393939;
+  background-color: var(--scrollbar-thumb);
   border-radius: 4px;
 }
 
@@ -38,8 +94,8 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg-primary);
+  color: var(--text-primary);
   font-family: "Inter", Arial, Helvetica, sans-serif;
 }
 
@@ -53,3 +109,4 @@ body {
 .animate-spin {
   animation: spin 1s linear infinite;
 }
+

@@ -22,7 +22,10 @@ export default function VideoCard({
       onClick={onClick}
       className="cursor-pointer group"
     >
-      <div className="relative aspect-video rounded-xl overflow-hidden bg-[#1a1a1a]">
+      <div
+        className="relative aspect-video rounded-xl overflow-hidden"
+        style={{ backgroundColor: "var(--bg-secondary)" }}
+      >
         {thumbnail ? (
           <Image
             src={thumbnail}
@@ -38,14 +41,14 @@ export default function VideoCard({
         )}
       </div>
       <div className="mt-3 px-1">
-        <h3 className="text-white text-sm font-medium line-clamp-2 leading-5">
+        <h3 className="text-sm font-medium line-clamp-2 leading-5" style={{ color: "var(--text-primary)" }}>
           {title}
         </h3>
         {channelTitle && (
-          <p className="text-[#aaa] text-xs mt-1">{channelTitle}</p>
+          <p className="text-xs mt-1" style={{ color: "var(--text-secondary)" }}>{channelTitle}</p>
         )}
         {description && (
-          <p className="text-[#aaa] text-xs mt-0.5 line-clamp-1">{description}</p>
+          <p className="text-xs mt-0.5 line-clamp-1" style={{ color: "var(--text-secondary)" }}>{description}</p>
         )}
       </div>
     </div>

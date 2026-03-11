@@ -77,7 +77,7 @@ export default function Home() {
 
   return (
     <div className="p-6">
-      <h1 className="text-white text-2xl font-bold mb-6">
+      <h1 className="text-2xl font-bold mb-6" style={{ color: "var(--text-primary)" }}>
         Recommended Roadmaps:
       </h1>
 
@@ -95,7 +95,7 @@ export default function Home() {
 
       {!user && (
         <div className="mt-12 text-center">
-          <p className="text-[#aaa] text-sm">
+          <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
             Sign in to save your roadmaps and track your learning progress
           </p>
         </div>

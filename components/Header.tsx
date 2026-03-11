@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import Image from "next/image";
-import { FiSearch, FiMenu } from "react-icons/fi";
+import { FiSearch, FiMenu, FiSun, FiMoon } from "react-icons/fi";
 import { isBlockedQuery } from "@/lib/content-filter";
 
 interface HeaderProps {
@@ -14,6 +15,7 @@ interface HeaderProps {
 export default function Header({ onToggleSidebar }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const { user, signInWithGoogle, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const router = useRouter();
 
@@ -33,14 +35,20 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between h-14 px-4 bg-[#0f0f0f] border-b border-[#272727]">
+    <header
+      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between h-14 px-4"
+      style={{ backgroundColor: "var(--bg-primary)", borderBottom: "1px solid var(--border-primary)" }}
+    >
       {/* Left: Menu + Logo */}
       <div className="flex items-center gap-4">
         <button
           onClick={onToggleSidebar}
-          className="p-2 hover:bg-[#272727] rounded-full transition-colors cursor-pointer"
+          className="p-2 rounded-full transition-colors cursor-pointer"
+          style={{ color: "var(--text-primary)" }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--bg-hover)")}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
         >
-          <FiMenu className="text-white text-xl" />
+          <FiMenu className="text-xl" />
         </button>
         <div
           className="flex items-center gap-1 cursor-pointer"
@@ -58,13 +66,26 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search to generate roadmap..."
-            className="w-full px-4 py-2 bg-[#121212] border border-[#303030] rounded-l-full text-white placeholder-[#888] focus:outline-none focus:border-[#1c62b9] text-sm"
+            className="w-full px-4 py-2 rounded-l-full text-sm focus:outline-none"
+            style={{
+              backgroundColor: "var(--bg-input)",
+              border: "1px solid var(--border-input)",
+              color: "var(--text-primary)",
+            }}
           />
           <button
             type="submit"
-            className="px-6 py-2 bg-[#222222] border border-l-0 border-[#303030] rounded-r-full hover:bg-[#333] transition-colors cursor-pointer"
+            className="px-6 py-2 rounded-r-full transition-colors cursor-pointer"
+            style={{
+              backgroundColor: "var(--bg-button)",
+              borderTop: "1px solid var(--border-input)",
+              borderRight: "1px solid var(--border-input)",
+              borderBottom: "1px solid var(--border-input)",
+              borderLeft: "none",
+              color: "var(--text-primary)",
+            }}
           >
-            <FiSearch className="text-white text-xl" />
+            <FiSearch className="text-xl" />
           </button>
         </div>
         {blockedWarning && (
@@ -74,54 +95,98 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
         )}
       </form>
 
-      {/* Right: User */}
-      <div className="relative">
-        {user ? (
-          <div className="relative">
-            <button
-              onClick={() => setShowUserMenu(!showUserMenu)}
-              className="cursor-pointer"
-            >
-              {user.photoURL ? (
-                <Image
-                  src={user.photoURL}
-                  alt={user.displayName || "User"}
-                  width={32}
-                  height={32}
-                  className="rounded-full"
-                />
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-[#5a2d82] flex items-center justify-center text-white text-sm font-medium">
-                  {user.displayName?.[0] || user.email?.[0] || "U"}
+      {/* Right: Theme Toggle + User */}
+      <div className="flex items-center gap-3">
+        {/* Theme Toggle */}
+        <button
+          onClick={(e) => toggleTheme(e)}
+          className="p-2 rounded-full transition-colors cursor-pointer relative overflow-hidden"
+          style={{ color: "var(--text-primary)" }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--bg-hover)")}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+          title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+        >
+          <div className="relative w-5 h-5">
+            <FiSun
+              className="absolute inset-0 text-xl"
+              style={{
+                opacity: theme === "light" ? 1 : 0,
+              }}
+            />
+            <FiMoon
+              className="absolute inset-0 text-xl"
+              style={{
+                opacity: theme === "dark" ? 1 : 0,
+              }}
+            />
+          </div>
+        </button>
+
+        {/* User */}
+        <div className="relative">
+          {user ? (
+            <div className="relative">
+              <button
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="cursor-pointer"
+              >
+                {user.photoURL ? (
+                  <Image
+                    src={user.photoURL}
+                    alt={user.displayName || "User"}
+                    width={32}
+                    height={32}
+                    className="rounded-full"
+                  />
+                ) : (
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium"
+                    style={{ backgroundColor: "var(--purple)" }}
+                  >
+                    {user.displayName?.[0] || user.email?.[0] || "U"}
+                  </div>
+                )}
+              </button>
+              {showUserMenu && (
+                <div
+                  className="absolute right-0 top-10 rounded-xl shadow-lg py-2 min-w-[200px]"
+                  style={{
+                    backgroundColor: "var(--user-menu-bg)",
+                    border: "1px solid var(--border-primary)",
+                  }}
+                >
+                  <div className="px-4 py-3" style={{ borderBottom: "1px solid var(--border-primary)" }}>
+                    <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{user.displayName}</p>
+                    <p className="text-xs" style={{ color: "var(--text-secondary)" }}>{user.email}</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      logout();
+                      setShowUserMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm transition-colors cursor-pointer"
+                    style={{ color: "var(--text-primary)" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--bg-hover)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                  >
+                    Sign out
+                  </button>
                 </div>
               )}
+            </div>
+          ) : (
+            <button
+              onClick={signInWithGoogle}
+              className="flex items-center gap-2 px-4 py-1.5 rounded-full transition-colors text-sm font-medium cursor-pointer"
+              style={{
+                border: "1px solid var(--border-input)",
+                color: "var(--accent)",
+              }}
+            >
+              Sign in
             </button>
-            {showUserMenu && (
-              <div className="absolute right-0 top-10 bg-[#282828] rounded-xl shadow-lg py-2 min-w-[200px] border border-[#393939]">
-                <div className="px-4 py-3 border-b border-[#393939]">
-                  <p className="text-white text-sm font-medium">{user.displayName}</p>
-                  <p className="text-[#aaa] text-xs">{user.email}</p>
-                </div>
-                <button
-                  onClick={() => {
-                    logout();
-                    setShowUserMenu(false);
-                  }}
-                  className="w-full text-left px-4 py-2 text-sm text-white hover:bg-[#393939] transition-colors cursor-pointer"
-                >
-                  Sign out
-                </button>
-              </div>
-            )}
-          </div>
-        ) : (
-          <button
-            onClick={signInWithGoogle}
-            className="flex items-center gap-2 px-4 py-1.5 border border-[#3e3e3e] rounded-full text-[#3ea6ff] hover:bg-[#263850] transition-colors text-sm font-medium cursor-pointer"
-          >
-            Sign in
-          </button>
-        )}
+          )}
+        </div>
       </div>
     </header>
   );

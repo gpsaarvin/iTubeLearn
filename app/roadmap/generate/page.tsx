@@ -183,10 +183,10 @@ export default function GenerateRoadmapPage({
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[80vh] gap-4">
-        <div className="w-12 h-12 border-4 border-[#3ea6ff] border-t-transparent rounded-full animate-spin" />
-        <p className="text-white text-lg">{loadingMessage}</p>
-        <p className="text-[#888] text-sm">
-          Generating roadmap for: <strong className="text-white">{topic}</strong>
+        <div className="w-12 h-12 border-4 rounded-full animate-spin" style={{ borderColor: "var(--accent)", borderTopColor: "transparent" }} />
+        <p className="text-lg" style={{ color: "var(--text-primary)" }}>{loadingMessage}</p>
+        <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+          Generating roadmap for: <strong style={{ color: "var(--text-primary)" }}>{topic}</strong>
         </p>
       </div>
     );
@@ -198,7 +198,8 @@ export default function GenerateRoadmapPage({
         <p className="text-red-400 text-lg">Error: {error}</p>
         <button
           onClick={handleRefresh}
-          className="px-6 py-2 bg-[#3ea6ff] text-black rounded-full font-medium hover:bg-[#65b8ff] transition-colors cursor-pointer"
+          className="px-6 py-2 rounded-full font-medium transition-colors cursor-pointer"
+          style={{ backgroundColor: "var(--accent)", color: "var(--bg-primary)" }}
         >
           Try Again
         </button>
@@ -209,7 +210,7 @@ export default function GenerateRoadmapPage({
   if (!roadmap || phases.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[80vh]">
-        <p className="text-[#888]">No roadmap generated</p>
+        <p style={{ color: "var(--text-muted)" }}>No roadmap generated</p>
       </div>
     );
   }
