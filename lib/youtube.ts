@@ -57,13 +57,14 @@ export async function batchSearchYouTubeVideos(
 export async function streamSearchYouTubeVideos(
   queries: string[],
   onResult: (query: string, video: YouTubeVideo) => void,
-  onProgress: (loaded: number, total: number) => void
+  onProgress: (loaded: number, total: number) => void,
+  language?: string | null
 ): Promise<void> {
   try {
     const res = await fetch("/api/youtube/stream", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ queries }),
+      body: JSON.stringify({ queries, language: language || undefined }),
     });
 
     if (!res.ok || !res.body) return;

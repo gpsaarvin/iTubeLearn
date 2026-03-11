@@ -7,24 +7,33 @@ import { usePathname } from "next/navigation";
 
 interface SidebarProps {
   isOpen: boolean;
+  isMobile?: boolean;
+  onClose?: () => void;
 }
 
-export default function Sidebar({ isOpen }: SidebarProps) {
+export default function Sidebar({ isOpen, isMobile = false, onClose }: SidebarProps) {
   const { user, learningList } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
+  const handleNavClick = (path: string) => {
+    router.push(path);
+    if (isMobile && onClose) onClose();
+  };
+
   return (
     <aside
       className={`fixed top-14 left-0 bottom-0 transition-all duration-200 z-40 overflow-y-auto ${
-        isOpen ? "w-60" : "w-[72px]"
+        isMobile
+          ? isOpen ? "w-60 translate-x-0" : "w-60 -translate-x-full"
+          : isOpen ? "w-60" : "w-[72px]"
       }`}
       style={{ backgroundColor: "var(--bg-primary)" }}
     >
       <div className="py-3">
         {/* Home */}
         <button
-          onClick={() => router.push("/")}
+          onClick={() => handleNavClick("/")}
           className="flex items-center w-full px-3 py-2 rounded-lg mx-1 transition-colors cursor-pointer"
           style={{
             width: "calc(100% - 8px)",
@@ -58,7 +67,7 @@ export default function Sidebar({ isOpen }: SidebarProps) {
               learningList.map((rm) => (
                 <button
                   key={rm.id}
-                  onClick={() => router.push(`/roadmap/${rm.id}`)}
+                  onClick={() => handleNavClick(`/roadmap/${rm.id}`)}
                   className="flex items-center w-full px-4 py-2 text-left transition-colors cursor-pointer"
                   style={{
                     backgroundColor: pathname === `/roadmap/${rm.id}` ? "var(--bg-hover)" : "transparent",
@@ -84,7 +93,7 @@ export default function Sidebar({ isOpen }: SidebarProps) {
             {learningList.map((rm) => (
               <button
                 key={rm.id}
-                onClick={() => router.push(`/roadmap/${rm.id}`)}
+                onClick={() => handleNavClick(`/roadmap/${rm.id}`)}
                 className="flex items-center justify-center w-full py-3 transition-colors cursor-pointer"
                 title={rm.topic}
                 onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--bg-hover)")}

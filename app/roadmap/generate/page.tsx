@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, use, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { generateRoadmap, Roadmap } from "@/lib/openrouter";
 import { streamSearchYouTubeVideos, YouTubeVideo } from "@/lib/youtube";
+import { detectLanguage } from "@/lib/language-detect";
 import { PhaseWithVideos, saveRoadmap, addToLearning, getUserRoadmaps, updateRoadmapPhases } from "@/lib/firestore";
 import { useAuth } from "@/contexts/AuthContext";
 import RoadmapView from "@/components/RoadmapView";
@@ -68,8 +69,11 @@ export default function GenerateRoadmapPage({
     setError(null);
     setLoadingMessage("Generating your roadmap with AI...");
 
+    // Detect language from the topic (e.g., "python in tamil" → language: "Tamil", cleanTopic: "python")
+    const { cleanTopic, language } = detectLanguage(topic);
+
     try {
-      const generatedRoadmap = await generateRoadmap(topic);
+      const generatedRoadmap = await generateRoadmap(cleanTopic, language);
       setRoadmap(generatedRoadmap);
 
       // Create phases immediately with empty videos (show roadmap right away)
@@ -136,7 +140,8 @@ export default function GenerateRoadmapPage({
         (loaded: number, total: number) => {
           setVideosLoadedCount(loaded);
           setVideosTotalCount(total);
-        }
+        },
+        language
       );
 
       setVideosLoading(false);
@@ -227,6 +232,7 @@ export default function GenerateRoadmapPage({
       videosLoading={videosLoading}
       videosLoadedCount={videosLoadedCount}
       videosTotalCount={videosTotalCount}
+      roadmapId={roadmapId || undefined}
     />
   );
 }

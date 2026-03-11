@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, use } from "react";
+import { useEffect, useState, useCallback, use, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   getRoadmap,
@@ -11,7 +11,7 @@ import {
   PhaseWithVideos,
 } from "@/lib/firestore";
 import { generateRoadmap } from "@/lib/openrouter";
-import { searchYouTubeVideos } from "@/lib/youtube";
+import { searchYouTubeVideos, streamSearchYouTubeVideos, YouTubeVideo } from "@/lib/youtube";
 import { useAuth } from "@/contexts/AuthContext";
 import RoadmapView from "@/components/RoadmapView";
 
@@ -28,12 +28,75 @@ export default function RoadmapDetailPage({
   const [error, setError] = useState<string | null>(null);
   const [savedRoadmap, setSavedRoadmap] = useState<SavedRoadmap | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [videosLoading, setVideosLoading] = useState(false);
+  const [videosLoadedCount, setVideosLoadedCount] = useState(0);
+  const [videosTotalCount, setVideosTotalCount] = useState(0);
+  const phasesRef = useRef<PhaseWithVideos[]>([]);
+
+  const loadMissingVideos = useCallback(async (rm: SavedRoadmap) => {
+    // Collect search queries for topics that have no video
+    const missingQueries: { query: string; phaseIdx: number; topicIdx: number }[] = [];
+    rm.phases.forEach((phase, pi) => {
+      phase.topics.forEach((topic, ti) => {
+        if (!topic.video?.videoId) {
+          missingQueries.push({ query: topic.searchQuery, phaseIdx: pi, topicIdx: ti });
+        }
+      });
+    });
+
+    if (missingQueries.length === 0) return;
+
+    const queryMap = new Map<string, { phaseIdx: number; topicIdx: number }>();
+    missingQueries.forEach(({ query, phaseIdx, topicIdx }) => {
+      queryMap.set(query, { phaseIdx, topicIdx });
+    });
+
+    setVideosTotalCount(missingQueries.length);
+    setVideosLoading(true);
+    setVideosLoadedCount(0);
+    phasesRef.current = rm.phases;
+
+    await streamSearchYouTubeVideos(
+      missingQueries.map((m) => m.query),
+      (query: string, video: YouTubeVideo) => {
+        const loc = queryMap.get(query);
+        if (!loc) return;
+
+        setSavedRoadmap((prev) => {
+          if (!prev) return prev;
+          const updatedPhases = prev.phases.map((phase, pi) => {
+            if (pi !== loc.phaseIdx) return phase;
+            return {
+              ...phase,
+              topics: phase.topics.map((t, ti) => {
+                if (ti !== loc.topicIdx) return t;
+                return { ...t, video };
+              }),
+            };
+          });
+          phasesRef.current = updatedPhases;
+          return { ...prev, phases: updatedPhases };
+        });
+      },
+      (loaded: number, total: number) => {
+        setVideosLoadedCount(loaded);
+        setVideosTotalCount(total);
+      }
+    );
+
+    setVideosLoading(false);
+
+    // Persist the loaded videos to Firestore
+    await updateRoadmapPhases(rm.id, phasesRef.current);
+  }, []);
 
   const loadRoadmap = useCallback(async () => {
     try {
       const rm = await getRoadmap(id);
       if (rm) {
         setSavedRoadmap(rm);
+        // Auto-load missing videos
+        loadMissingVideos(rm);
       } else {
         setError("Roadmap not found");
       }
@@ -42,7 +105,7 @@ export default function RoadmapDetailPage({
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, loadMissingVideos]);
 
   useEffect(() => {
     loadRoadmap();
@@ -142,6 +205,10 @@ export default function RoadmapDetailPage({
       onRemoveFromLearning={handleRemoveFromLearning}
       onRefreshRoadmap={handleRefresh}
       isRefreshing={isRefreshing}
+      videosLoading={videosLoading}
+      videosLoadedCount={videosLoadedCount}
+      videosTotalCount={videosTotalCount}
+      roadmapId={savedRoadmap.id}
     />
   );
 }

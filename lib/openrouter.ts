@@ -12,7 +12,11 @@ export interface Roadmap {
   phases: RoadmapPhase[];
 }
 
-export async function generateRoadmap(topic: string): Promise<Roadmap> {
+export async function generateRoadmap(topic: string, language?: string | null): Promise<Roadmap> {
+  const langInstruction = language
+    ? `\n\nIMPORTANT: The user wants tutorials in ${language}. Every searchQuery MUST include "in ${language}" at the end so that YouTube results are in ${language}. For example: "best Python basics tutorial in ${language}".`
+    : "";
+
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -43,7 +47,7 @@ IMPORTANT: Respond ONLY with valid JSON in this exact format, no markdown, no co
   ]
 }
 
-Generate 3-5 phases with 3-5 topics each. Make search queries specific enough to find high-quality YouTube tutorials.`,
+Generate 3-5 phases with 3-5 topics each. Make search queries specific enough to find high-quality YouTube tutorials.${langInstruction}`,
         },
         {
           role: "user",

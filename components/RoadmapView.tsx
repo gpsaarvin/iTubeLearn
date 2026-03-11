@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { PhaseWithVideos } from "@/lib/firestore";
-import { FiRefreshCw, FiExternalLink, FiChevronDown, FiChevronUp, FiSearch } from "react-icons/fi";
+import { FiRefreshCw, FiExternalLink, FiChevronDown, FiChevronUp, FiSearch, FiCheck, FiAlertTriangle } from "react-icons/fi";
 import { MdPlaylistAdd, MdPlaylistAddCheck } from "react-icons/md";
 
 interface RoadmapViewProps {
@@ -16,6 +16,7 @@ interface RoadmapViewProps {
   videosLoading?: boolean;
   videosLoadedCount?: number;
   videosTotalCount?: number;
+  roadmapId?: string;
 }
 
 export default function RoadmapView({
@@ -29,6 +30,7 @@ export default function RoadmapView({
   videosLoading = false,
   videosLoadedCount = 0,
   videosTotalCount = 0,
+  roadmapId,
 }: RoadmapViewProps) {
   const [activeVideo, setActiveVideo] = useState<{
     videoId: string;
@@ -40,6 +42,34 @@ export default function RoadmapView({
       {} as Record<number, boolean>
     )
   );
+  const [watchedVideos, setWatchedVideos] = useState<Set<string>>(new Set());
+  const [showRefreshWarning, setShowRefreshWarning] = useState(false);
+
+  // Load watched videos from localStorage
+  useEffect(() => {
+    if (!roadmapId) return;
+    try {
+      const stored = localStorage.getItem(`watched_${roadmapId}`);
+      if (stored) {
+        setWatchedVideos(new Set(JSON.parse(stored)));
+      }
+    } catch { /* ignore parse errors */ }
+  }, [roadmapId]);
+
+  const toggleWatched = (videoId: string) => {
+    setWatchedVideos((prev) => {
+      const next = new Set(prev);
+      if (next.has(videoId)) {
+        next.delete(videoId);
+      } else {
+        next.add(videoId);
+      }
+      if (roadmapId) {
+        localStorage.setItem(`watched_${roadmapId}`, JSON.stringify([...next]));
+      }
+      return next;
+    });
+  };
 
   // Auto-select first available video when phases update (progressive loading)
   useEffect(() => {
@@ -59,9 +89,9 @@ export default function RoadmapView({
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 p-6">
+    <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 p-3 sm:p-6">
       {/* Video Player */}
-      <div className="flex-1">
+      <div className="flex-1 min-w-0">
         {activeVideo?.videoId ? (
           <div>
             <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black">
@@ -73,15 +103,15 @@ export default function RoadmapView({
                 allowFullScreen
               />
             </div>
-            <div className="mt-4 flex items-start justify-between">
-              <h2 className="text-lg font-medium flex-1" style={{ color: "var(--text-primary)" }}>
+            <div className="mt-4 flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+              <h2 className="text-base sm:text-lg font-medium flex-1" style={{ color: "var(--text-primary)" }}>
                 {activeVideo.title}
               </h2>
               <a
                 href={`https://www.youtube.com/watch?v=${activeVideo.videoId}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="ml-4 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs transition-colors whitespace-nowrap"
+                className="sm:ml-4 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs transition-colors whitespace-nowrap self-start"
                 style={{
                   backgroundColor: "var(--bg-hover)",
                   color: "var(--text-primary)",
@@ -104,14 +134,14 @@ export default function RoadmapView({
       </div>
 
       {/* Roadmap Sidebar */}
-      <div className="lg:w-[420px] flex flex-col">
+      <div className="w-full lg:w-[420px] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>{title}</h1>
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+          <h1 className="text-lg sm:text-xl font-bold truncate" style={{ color: "var(--text-primary)" }}>{title}</h1>
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={isAddedToLearning ? onRemoveFromLearning : onAddToLearning}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors cursor-pointer whitespace-nowrap"
               style={{
                 backgroundColor: isAddedToLearning ? "var(--accent-bg)" : "var(--bg-hover)",
                 color: isAddedToLearning ? "var(--accent)" : "var(--text-primary)",
@@ -128,9 +158,9 @@ export default function RoadmapView({
               )}
             </button>
             <button
-              onClick={onRefreshRoadmap}
+              onClick={() => setShowRefreshWarning(true)}
               disabled={isRefreshing}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm transition-colors disabled:opacity-50 cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs sm:text-sm transition-colors disabled:opacity-50 cursor-pointer whitespace-nowrap"
               style={{
                 backgroundColor: "var(--bg-hover)",
                 color: "var(--text-primary)",
@@ -187,7 +217,27 @@ export default function RoadmapView({
                     const isActive = activeVideo?.videoId === topic.video?.videoId && hasVideo;
 
                     return (
-                      <div key={topicIndex} className="flex items-start gap-3">
+                      <div key={topicIndex} className="flex items-center gap-1">
+                        {/* Watched checkbox */}
+                        {hasVideo && topic.video?.videoId && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleWatched(topic.video!.videoId);
+                            }}
+                            className="shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110"
+                            style={{
+                              borderColor: watchedVideos.has(topic.video!.videoId) ? "var(--accent)" : "var(--text-dim)",
+                              backgroundColor: watchedVideos.has(topic.video!.videoId) ? "var(--accent)" : "transparent",
+                            }}
+                            title={watchedVideos.has(topic.video!.videoId) ? "Mark as unwatched" : "Mark as watched"}
+                          >
+                            {watchedVideos.has(topic.video!.videoId) && (
+                              <FiCheck className="text-xs" style={{ color: "var(--bg-primary)" }} />
+                            )}
+                          </button>
+                        )}
+                        {!hasVideo && <div className="shrink-0 w-6 h-6" />}
                         <button
                           onClick={() => {
                             if (hasVideo) {
@@ -212,7 +262,7 @@ export default function RoadmapView({
                         >
                           {/* Thumbnail */}
                           <div
-                            className="w-[120px] min-w-[120px] aspect-video rounded-lg overflow-hidden relative flex-shrink-0"
+                            className="w-[90px] min-w-[90px] sm:w-[120px] sm:min-w-[120px] aspect-video rounded-lg overflow-hidden relative flex-shrink-0"
                             style={{ backgroundColor: "var(--bg-hover)" }}
                           >
                             {topic.video?.thumbnail ? (
@@ -273,6 +323,44 @@ export default function RoadmapView({
           ))}
         </div>
       </div>
+      {/* Refresh Warning Modal */}
+      {showRefreshWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: "rgba(0,0,0,0.6)" }}>
+          <div
+            className="w-full max-w-sm rounded-2xl p-6 shadow-2xl"
+            style={{ backgroundColor: "var(--bg-primary)", border: "1px solid var(--border-primary)" }}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: "#fef3c7" }}>
+                <FiAlertTriangle className="text-lg" style={{ color: "#d97706" }} />
+              </div>
+              <h3 className="text-base font-semibold" style={{ color: "var(--text-primary)" }}>Refresh Roadmap?</h3>
+            </div>
+            <p className="text-sm mb-6" style={{ color: "var(--text-secondary)" }}>
+              The current videos and roadmap content will be replaced with new ones. This action <strong style={{ color: "var(--text-primary)" }}>cannot be undone</strong>.
+            </p>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={() => setShowRefreshWarning(false)}
+                className="px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer"
+                style={{ backgroundColor: "var(--bg-hover)", color: "var(--text-primary)" }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowRefreshWarning(false);
+                  onRefreshRoadmap();
+                }}
+                className="px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer"
+                style={{ backgroundColor: "#dc2626", color: "#ffffff" }}
+              >
+                Refresh
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

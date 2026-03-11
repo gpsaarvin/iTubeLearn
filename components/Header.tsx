@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import Image from "next/image";
-import { FiSearch, FiMenu, FiSun, FiMoon } from "react-icons/fi";
+import { FiSearch, FiMenu, FiSun, FiMoon, FiX } from "react-icons/fi";
 import { isBlockedQuery } from "@/lib/content-filter";
 
 interface HeaderProps {
@@ -17,6 +17,7 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
   const { user, signInWithGoogle, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const router = useRouter();
 
   const [blockedWarning, setBlockedWarning] = useState(false);
@@ -32,15 +33,58 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
     }
     router.push(`/roadmap/generate?topic=${encodeURIComponent(query)}`);
     setSearchQuery("");
+    setMobileSearchOpen(false);
   };
 
   return (
     <header
-      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between h-14 px-4"
+      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between h-14 px-2 sm:px-4"
       style={{ backgroundColor: "var(--bg-primary)", borderBottom: "1px solid var(--border-primary)" }}
     >
+      {/* Mobile search expanded overlay */}
+      {mobileSearchOpen && (
+        <div className="absolute inset-0 flex items-center px-2 z-50 md:hidden" style={{ backgroundColor: "var(--bg-primary)" }}>
+          <button
+            onClick={() => setMobileSearchOpen(false)}
+            className="p-2 rounded-full shrink-0 cursor-pointer"
+            style={{ color: "var(--text-primary)" }}
+          >
+            <FiX className="text-xl" />
+          </button>
+          <form onSubmit={handleSearch} className="flex flex-1 items-center">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search to generate roadmap..."
+              className="w-full px-3 py-2 rounded-l-full text-sm focus:outline-none"
+              autoFocus
+              style={{
+                backgroundColor: "var(--bg-input)",
+                border: "1px solid var(--border-input)",
+                color: "var(--text-primary)",
+              }}
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-r-full cursor-pointer shrink-0"
+              style={{
+                backgroundColor: "var(--bg-button)",
+                borderTop: "1px solid var(--border-input)",
+                borderRight: "1px solid var(--border-input)",
+                borderBottom: "1px solid var(--border-input)",
+                borderLeft: "none",
+                color: "var(--text-primary)",
+              }}
+            >
+              <FiSearch className="text-xl" />
+            </button>
+          </form>
+        </div>
+      )}
+
       {/* Left: Menu + Logo */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4 shrink-0">
         <button
           onClick={onToggleSidebar}
           className="p-2 rounded-full transition-colors cursor-pointer"
@@ -58,8 +102,8 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
         </div>
       </div>
 
-      {/* Center: Search */}
-      <form onSubmit={handleSearch} className="flex items-center flex-1 max-w-[640px] mx-8">
+      {/* Center: Search (hidden on mobile, replaced by icon) */}
+      <form onSubmit={handleSearch} className="hidden md:flex items-center flex-1 max-w-[640px] mx-4 lg:mx-8">
         <div className="flex flex-1">
           <input
             type="text"
@@ -95,8 +139,19 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
         )}
       </form>
 
-      {/* Right: Theme Toggle + User */}
-      <div className="flex items-center gap-3">
+      {/* Right: Mobile search icon + Theme Toggle + User */}
+      <div className="flex items-center gap-1 sm:gap-3 shrink-0">
+        {/* Mobile search button */}
+        <button
+          onClick={() => setMobileSearchOpen(true)}
+          className="p-2 rounded-full transition-colors cursor-pointer md:hidden"
+          style={{ color: "var(--text-primary)" }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--bg-hover)")}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+        >
+          <FiSearch className="text-xl" />
+        </button>
+
         {/* Theme Toggle */}
         <button
           onClick={(e) => toggleTheme(e)}
@@ -177,7 +232,7 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
           ) : (
             <button
               onClick={signInWithGoogle}
-              className="flex items-center gap-2 px-4 py-1.5 rounded-full transition-colors text-sm font-medium cursor-pointer"
+              className="flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full transition-colors text-xs sm:text-sm font-medium cursor-pointer whitespace-nowrap"
               style={{
                 border: "1px solid var(--border-input)",
                 color: "var(--accent)",

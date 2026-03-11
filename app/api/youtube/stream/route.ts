@@ -66,6 +66,7 @@ async function searchWithRetry(q: string): Promise<YouTubeVideo> {
 export async function POST(request: NextRequest) {
   const body = await request.json();
   const queries: string[] = body.queries || [];
+  const language: string | undefined = body.language;
 
   if (!queries.length) {
     return new Response(JSON.stringify({ error: "Missing queries" }), {
@@ -91,14 +92,16 @@ export async function POST(request: NextRequest) {
 
       for (let i = 0; i < safeQueries.length; i++) {
         const q = safeQueries[i];
-        const isCached = videoCache.has(q.toLowerCase());
+        // Append language to the query if specified (e.g., "python tutorial" → "python tutorial in Tamil")
+        const searchQ = language ? `${q} in ${language}` : q;
+        const isCached = videoCache.has(searchQ.toLowerCase());
 
         // Only delay before uncached searches (skip the first one)
         if (needsDelay && !isCached) {
           await delay(3000);
         }
 
-        const video = await searchWithRetry(q);
+        const video = await searchWithRetry(searchQ);
 
         const line = JSON.stringify({
           query: q,
