@@ -1,65 +1,105 @@
-import Image from "next/image";
+"use client";
+
+import { useRouter } from "next/navigation";
+import VideoCard from "@/components/VideoCard";
+import { useAuth } from "@/contexts/AuthContext";
+
+const RECOMMENDED_ROADMAPS = [
+  {
+    topic: "AI/ML Roadmap",
+    keyword: "AI and Machine Learning",
+    thumbnail: "https://i.ytimg.com/vi/hhGPiDrUe1c/hqdefault.jpg",
+    description: "Complete AI & Machine Learning path",
+  },
+  {
+    topic: "Blockchain Developer",
+    keyword: "Blockchain Development",
+    thumbnail: "https://i.ytimg.com/vi/gyMwXuJrbJQ/hqdefault.jpg",
+    description: "Become a Blockchain developer",
+  },
+  {
+    topic: "Python Roadmap",
+    keyword: "Python Programming",
+    thumbnail: "https://i.ytimg.com/vi/rfscVS0vtbw/hqdefault.jpg",
+    description: "Learn Python from scratch to advanced",
+  },
+  {
+    topic: "Java Roadmap",
+    keyword: "Java Programming",
+    thumbnail: "https://i.ytimg.com/vi/eIrMbAQSU34/hqdefault.jpg",
+    description: "Complete Java developer roadmap",
+  },
+  {
+    topic: "Web Development",
+    keyword: "Full Stack Web Development",
+    thumbnail: "https://i.ytimg.com/vi/nu_pCVPKzTk/hqdefault.jpg",
+    description: "Full Stack Web Development path",
+  },
+  {
+    topic: "Data Science",
+    keyword: "Data Science",
+    thumbnail: "https://i.ytimg.com/vi/ua-CiDNNj30/hqdefault.jpg",
+    description: "Data Science complete roadmap",
+  },
+  {
+    topic: "React Development",
+    keyword: "React.js Development",
+    thumbnail: "https://i.ytimg.com/vi/Ke90Tje7VS0/hqdefault.jpg",
+    description: "Master React.js from basics to advanced",
+  },
+  {
+    topic: "DevOps Roadmap",
+    keyword: "DevOps Engineering",
+    thumbnail: "https://i.ytimg.com/vi/0yWAtQ6wYNM/hqdefault.jpg",
+    description: "Complete DevOps engineering path",
+  },
+  {
+    topic: "C/C++ Roadmap",
+    keyword: "C and C++ Programming",
+    thumbnail: "https://i.ytimg.com/vi/vLnPwxZdW4Y/hqdefault.jpg",
+    description: "Learn C/C++ programming from scratch",
+  },
+  {
+    topic: "GenAI Roadmap",
+    keyword: "Generative AI Development",
+    thumbnail: "https://i.ytimg.com/vi/mEsleV16qdo/hqdefault.jpg",
+    description: "Generative AI & LLMs development path",
+  },
+];
 
 export default function Home() {
+  const router = useRouter();
+  const { user } = useAuth();
+
+  const handleRoadmapClick = (keyword: string) => {
+    router.push(`/roadmap/generate?topic=${encodeURIComponent(keyword)}`);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="p-6">
+      <h1 className="text-white text-2xl font-bold mb-6">
+        Recommended Roadmaps:
+      </h1>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {RECOMMENDED_ROADMAPS.map((roadmap, index) => (
+          <VideoCard
+            key={index}
+            title={roadmap.topic}
+            thumbnail={roadmap.thumbnail}
+            channelTitle={roadmap.description}
+            onClick={() => handleRoadmapClick(roadmap.keyword)}
+          />
+        ))}
+      </div>
+
+      {!user && (
+        <div className="mt-12 text-center">
+          <p className="text-[#aaa] text-sm">
+            Sign in to save your roadmaps and track your learning progress
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      )}
     </div>
   );
 }
