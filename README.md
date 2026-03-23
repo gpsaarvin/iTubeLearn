@@ -138,6 +138,9 @@ NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 
 # OpenRouter
 NEXT_PUBLIC_OPENROUTER_API_KEY=your_key
+
+# Google Analytics (optional)
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 ```
 
 ### Run
