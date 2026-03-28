@@ -110,3 +110,30 @@ body {
   animation: spin 1s linear infinite;
 }
 
+@keyframes generate-courses-glow {
+  0% {
+    transform: scale(0.9);
+    filter: drop-shadow(0 0 0 rgba(62, 166, 255, 0));
+    opacity: 0.75;
+  }
+  35% {
+    transform: scale(1.12);
+    filter: drop-shadow(0 0 8px rgba(62, 166, 255, 0.85));
+    opacity: 1;
+  }
+  70% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 14px rgba(62, 166, 255, 0.95));
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0 rgba(62, 166, 255, 0));
+    opacity: 1;
+  }
+}
+
+.animate-generate-courses-glow {
+  animation: generate-courses-glow 1.6s ease-out 1;
+}
+
