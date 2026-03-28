@@ -1,4 +1,4 @@
-// Maps language keywords (including common typos/abbreviations) to their canonical name
+h// Maps language keywords (including common typos/abbreviations) to their canonical name
 const LANGUAGE_MAP: Record<string, string> = {
   // Indian languages
   tamil: "Tamil",

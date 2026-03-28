@@ -127,6 +127,11 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
               <FiSearch className="text-xl" />
             </button>
           </form>
+          {blockedWarning && (
+            <div className="absolute top-full mt-2 left-2 right-2 bg-red-600 text-white text-sm px-3 py-2 rounded-lg text-center z-50">
+              This search contains restricted content. Please search for educational topics.
+            </div>
+          )}
         </div>
       )}
 
