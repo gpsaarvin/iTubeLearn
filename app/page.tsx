@@ -65,11 +65,74 @@ const RECOMMENDED_ROADMAPS = [
     thumbnail: "https://i.ytimg.com/vi/mEsleV16qdo/hqdefault.jpg",
     description: "Generative AI & LLMs development path",
   },
+  {
+    topic: "Node.js Backend",
+    keyword: "Node.js Backend Development",
+    thumbnail: "https://i.ytimg.com/vi/Oe421EPjeBE/hqdefault.jpg",
+    description: "Build scalable backend APIs with Node.js",
+  },
+  {
+    topic: "TypeScript Mastery",
+    keyword: "TypeScript Programming",
+    thumbnail: "https://i.ytimg.com/vi/30LWjhZzg50/hqdefault.jpg",
+    description: "Type-safe JavaScript for modern apps",
+  },
+  {
+    topic: "Cybersecurity Basics",
+    keyword: "Cybersecurity Fundamentals",
+    thumbnail: "https://i.ytimg.com/vi/inWWhr5tnEA/hqdefault.jpg",
+    description: "Learn core security practices and tools",
+  },
+  {
+    topic: "Cloud Computing",
+    keyword: "Cloud Computing Roadmap",
+    thumbnail: "https://i.ytimg.com/vi/2LaAJq1lB1Q/hqdefault.jpg",
+    description: "Understand AWS, Azure, and GCP basics",
+  },
+  {
+    topic: "System Design",
+    keyword: "System Design Interview",
+    thumbnail: "https://i.ytimg.com/vi/bUHFg8CZFws/hqdefault.jpg",
+    description: "Design scalable distributed systems",
+  },
+  {
+    topic: "SQL and Databases",
+    keyword: "SQL and Database Design",
+    thumbnail: "https://i.ytimg.com/vi/HXV3zeQKqGY/hqdefault.jpg",
+    description: "Master SQL queries and schema design",
+  },
+  {
+    topic: "Mobile App Development",
+    keyword: "Mobile App Development",
+    thumbnail: "https://i.ytimg.com/vi/0-S5a0eXPoc/hqdefault.jpg",
+    description: "Build Android and iOS apps",
+  },
+  {
+    topic: "UI/UX Design",
+    keyword: "UI UX Design",
+    thumbnail: "https://i.ytimg.com/vi/c9Wg6Cb_YlU/hqdefault.jpg",
+    description: "Design intuitive and modern interfaces",
+  },
+  {
+    topic: "Git and GitHub",
+    keyword: "Git and GitHub",
+    thumbnail: "https://i.ytimg.com/vi/RGOj5yH7evk/hqdefault.jpg",
+    description: "Version control essentials for developers",
+  },
+  {
+    topic: "Data Structures & Algorithms",
+    keyword: "Data Structures and Algorithms",
+    thumbnail: "https://i.ytimg.com/vi/8hly31xKli0/hqdefault.jpg",
+    description: "Strengthen your coding interview skills",
+  },
 ];
 
 export default function Home() {
   const router = useRouter();
   const { user } = useAuth();
+  const displayName = user?.displayName?.trim();
+  const firstName = displayName ? displayName.split(" ")[0] : null;
+  const welcomeName = firstName || "Learner";
 
   const handleRoadmapClick = (keyword: string) => {
     router.push(`/roadmap/generate?topic=${encodeURIComponent(keyword)}`);
@@ -77,6 +140,14 @@ export default function Home() {
 
   return (
     <div className="p-3 sm:p-6">
+      <h2 className="text-lg sm:text-xl font-semibold mb-1" style={{ color: "var(--text-primary)" }}>
+        Welcome back, {welcomeName}
+      </h2>
+
+      <p className="text-sm sm:text-base mb-4 sm:mb-6" style={{ color: "var(--text-secondary)" }}>
+        Continue learning with fresh picks for you.
+      </p>
+
       <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6" style={{ color: "var(--text-primary)" }}>
         Recommended Roadmaps:
       </h1>

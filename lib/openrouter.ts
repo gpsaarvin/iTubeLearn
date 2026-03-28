@@ -1,3 +1,5 @@
+import { BLOCKED_MESSAGE, isBlockedQuery } from "@/lib/content-filter";
+
 export interface RoadmapPhase {
   title: string;
   topics: {
@@ -13,6 +15,10 @@ export interface Roadmap {
 }
 
 export async function generateRoadmap(topic: string, language?: string | null): Promise<Roadmap> {
+  if (isBlockedQuery(topic)) {
+    throw new Error(BLOCKED_MESSAGE);
+  }
+
   const langInstruction = language
     ? `\n\nIMPORTANT: The user wants tutorials in ${language}. Every searchQuery MUST include "in ${language}" at the end so that YouTube results are in ${language}. For example: "best Python basics tutorial in ${language}".`
     : "";
