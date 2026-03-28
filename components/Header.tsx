@@ -38,7 +38,7 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
     if (!query) return;
     if (isBlockedQuery(query)) {
       setBlockedWarning(true);
-      setTimeout(() => setBlockedWarning(false), 3000);
+      setTimeout(() => setBlockedWarning(false), 4500);
       return;
     }
     router.push(`/roadmap/generate?topic=${encodeURIComponent(query)}`);
@@ -128,7 +128,7 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
             </button>
           </form>
           {blockedWarning && (
-            <div className="absolute top-full mt-2 left-2 right-2 bg-red-600 text-white text-sm px-3 py-2 rounded-lg text-center z-50">
+            <div className="fixed top-16 left-2 right-2 bg-red-600 text-white text-sm px-3 py-2 rounded-lg text-center z-70 md:hidden">
               This search contains restricted content. Please search for educational topics.
             </div>
           )}
